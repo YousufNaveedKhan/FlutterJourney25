@@ -15,7 +15,7 @@ Future.delayed(Duration(seconds: 3), () {
 
 ### Authentication (Login & Register)
 
-* Refer to **SharedPreferences** example: [FlutterJourney25/Auth](https://github.com/YousufNaveedKhan/FlutterJourney25/tree/main/lib/auth)
+* Refer to **SharedPreferences** example: [FlutterJourney25/Auth](https://github.com/YousufNaveedKhan/FlutterJourney25/tree/master/12_Local_Storage/_01_shared_preferences/lib)
 * Keep user logged in:
 
 ```dart
