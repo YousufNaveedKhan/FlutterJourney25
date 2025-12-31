@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "749265413150",
+    "project_id": "myapp-dcfbc",
+    "storage_bucket": "myapp-dcfbc.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:749265413150:android:24d00595917cd17198fa0f",
+        "android_client_info": {
+          "package_name": "com.example.u_01_flutter_firebase_integration_basics"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyB-vuau8dRFhpYCQ2UOZ0qhJq1LDi2SVLE"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
