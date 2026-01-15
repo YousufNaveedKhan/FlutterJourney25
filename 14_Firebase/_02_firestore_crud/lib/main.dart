@@ -1,10 +1,11 @@
+import 'package:flutter/material.dart';
+import 'package:firebase_core/firebase_core.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:_02_firestore_crud/firebase_options.dart';
 import 'package:_02_firestore_crud/services/firestore_service.dart';
-import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:firebase_core/firebase_core.dart';
-import 'package:flutter/material.dart';
 
 void main() async {
+  WidgetsFlutterBinding.ensureInitialized();
   await Firebase.initializeApp(options: DefaultFirebaseOptions.currentPlatform);
   runApp(const MyApp());
 }
@@ -14,7 +15,10 @@ class MyApp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return MaterialApp(debugShowCheckedModeBanner: false, home: HomePage());
+    return const MaterialApp(
+      debugShowCheckedModeBanner: false,
+      home: HomePage(),
+    );
   }
 }
 
@@ -26,22 +30,40 @@ class HomePage extends StatefulWidget {
 }
 
 class _HomePageState extends State<HomePage> {
-  final FirestoreService firestore_service = FirestoreService();
+  // Service instance
+  final FirestoreService firestoreService = FirestoreService();
   final TextEditingController noteCtrl = TextEditingController();
 
-  void openBox() {
+  void openNoteBox({String? docID, String? existingText}) {
+    // Agr edit krrhe hain tou purana text field mein dikhao
+    if (existingText != null) {
+      noteCtrl.text = existingText;
+    } else {
+      noteCtrl.clear();
+    }
+
     showDialog(
       context: context,
       builder: (context) => AlertDialog(
-        content: TextField(controller: noteCtrl),
+        title: Text(docID == null ? "Add Note" : "Update Note"),
+        content: TextField(
+          controller: noteCtrl,
+          autofocus: true,
+          decoration: const InputDecoration(hintText: "Enter your note..."),
+        ),
         actions: [
           ElevatedButton(
             onPressed: () {
-              firestore_service.addNote(noteCtrl.text);
+              if (docID == null) {
+                firestoreService.addNote(noteCtrl.text);
+              } else {
+                firestoreService.updateNote(docID, noteCtrl.text);
+              }
+
               noteCtrl.clear();
               Navigator.pop(context);
             },
-            child: Text("Save"),
+            child: Text(docID == null ? "Add" : "Update"),
           ),
         ],
       ),
@@ -51,33 +73,57 @@ class _HomePageState extends State<HomePage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: Text("Firebase example")),
-      floatingActionButton: FloatingActionButton(
-        onPressed: () {
-          openBox();
-        },
-        child: Icon(Icons.add),
+      appBar: AppBar(
+        title: const Text("Firestore CRUD"),
+        centerTitle: true,
+        backgroundColor: Colors.blueGrey,
       ),
-      body: StreamBuilder(
-        stream: firestore_service.getNotesStream(),
+      floatingActionButton: FloatingActionButton(
+        onPressed: () => openNoteBox(),
+        child: const Icon(Icons.add),
+      ),
+      body: StreamBuilder<QuerySnapshot>(
+        stream: firestoreService.getNotesStream(),
         builder: (context, snapshot) {
-          if (snapshot.hasData) {
+          if (snapshot.connectionState == ConnectionState.waiting) {
+            return const Center(child: CircularProgressIndicator());
+          }
+
+          if (snapshot.hasData && snapshot.data!.docs.isNotEmpty) {
             List notesList = snapshot.data!.docs;
 
             return ListView.builder(
               itemCount: notesList.length,
               itemBuilder: (context, index) {
                 DocumentSnapshot document = notesList[index];
+                String docID = document.id;
+
                 Map<String, dynamic> data =
                     document.data() as Map<String, dynamic>;
+                String noteText = data['note'] ?? '';
 
-                String noteText = data['note'];
-
-                return ListTile(title: Text(noteText));
+                return ListTile(
+                  title: Text(noteText),
+                  subtitle: const Text("Tap edit to update"),
+                  trailing: Row(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      IconButton(
+                        onPressed: () =>
+                            openNoteBox(docID: docID, existingText: noteText),
+                        icon: const Icon(Icons.edit, color: Colors.blue),
+                      ),
+                      IconButton(
+                        onPressed: () => firestoreService.deleteNote(docID),
+                        icon: const Icon(Icons.delete, color: Colors.red),
+                      ),
+                    ],
+                  ),
+                );
               },
             );
           } else {
-            return Text("No Notes...");
+            return const Center(child: Text("No notes found..."));
           }
         },
       ),

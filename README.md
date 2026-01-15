@@ -105,6 +105,10 @@ Most courses jump into complex UI too early. This course ensures you **build a s
 1. `01_HTTP_and_API_Integration/`  
 2. `02_QuranApp_Using_Packages/`
 
+### 14_Firebase
+1. `01_Flutter_Firebase_Integration_Basics/`  
+2. `02_Firestore_CRUD/`
+
 ---
 
 ## 🗂️ Repository Structure
